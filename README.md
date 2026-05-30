@@ -1,8 +1,16 @@
 # 🛡️ DeFi Sentinel Vault — OPN Chain Testnet
 
-> Staking vault DeFi untuk IOPN Builders Programme Season 1 (DeFi & Open Finance)
+> A non-custodial staking vault built for the IOPN Builders Programme Season 1 (DeFi & Open Finance)
 
-## 📋 Overview
+## Live Demo
+
+**Web App:** [alawymuhsin.github.io/defi-sentinel-vault](https://alawymuhsin.github.io/defi-sentinel-vault/)
+
+**Contract:** [0x74D35B307c0652762669b351AD208a3538239A9e](https://testnet.iopn.tech/address/0x74D35B307c0652762669b351AD208a3538239A9e#code) (Verified)
+
+---
+
+## Overview
 
 | Item | Detail |
 |------|--------|
@@ -16,230 +24,164 @@
 
 ---
 
-## 🚀 Step-by-Step Guide
+## Features
 
-### Step 1: Prerequisites
+- **Stake IOPN** — deposit tokens into the vault and start earning
+- **Withdraw** — withdraw staked tokens at any time
+- **Claim Rewards** — accumulated rewards claimable per block
+- **5% APR** — configurable by owner (up to 50%)
+- **Reward Pool** — owner can fund the vault with IOPN for reward distribution
+- **Web Frontend** — MetaMask/Rabby wallet integration with auto network switching
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js v18+
+- MetaMask or Rabby Wallet
+- IOPN testnet tokens (for gas)
+
+### Install & Deploy
 
 ```bash
-# Install Node.js (v18+)
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Verify
-node --version
-npm --version
-```
-
-### Step 2: Setup Project
-
-```bash
-cd /root/.hermes/projects/iopn-defi-sentinel
+# Clone the repository
+git clone https://github.com/alawymuhsin/defi-sentinel-vault.git
+cd defi-sentinel-vault
 
 # Install dependencies
 npm install
 
-# Copy env template
+# Setup environment
 cp .env.example .env
-```
+# Edit .env and add your private key (without 0x prefix)
 
-### Step 3: Setup Wallet
-
-1. Buka MetaMask / Rabby Wallet
-2. Tambahkan OPN Chain Testnet:
-   - Network Name: `OPN Chain Testnet`
-   - RPC URL: `https://testnet-rpc.iopn.tech`
-   - Chain ID: `984`
-   - Currency Symbol: `IOPN`
-   - Explorer: `https://testnet.iopn.tech`
-3. Export private key dari wallet kamu
-4. Edit `.env` file:
-   ```
-   PRIVATE_KEY=your_private_key_here
-   ```
-
-### Step 4: Get Testnet IOPN
-
-Cek faucet OPN Chain testnet di:
-- https://builders.iopn.tech (connect wallet dulu)
-- Atau cek apakah ada faucet link di Discord IOPN
-
-Minimal butuh ~0.5 IOPN untuk deploy + gas.
-
-### Step 5: Compile Contract
-
-```bash
+# Compile
 npx hardhat compile
-```
 
-Output:
-```
-Compiled 1 Solidity file successfully
-```
-
-### Step 6: Deploy Contract
-
-```bash
+# Deploy to OPN Chain Testnet
 npx hardhat run scripts/deploy.js --network opn_testnet
-```
 
-Output:
-```
-🚀 Deploying DeFiSentinelVault to OPN Chain Testnet...
-Deployer: 0xYourWallet
-Balance: 1.0 IOPN
+# Verify contract on OPNScan
+npx hardhat verify --network opn_testnet <CONTRACT_ADDRESS>
 
-✅ DeFiSentinelVault deployed to: 0xContractAddress
-
-📄 Deployment info saved to deployment.json
-```
-
-**SAVE the contract address!** Kamu butuh ini untuk verify dan frontend.
-
-### Step 7: Verify Contract di Explorer
-
-**Option A — Hardhat Verify (recommended):**
-```bash
-npx hardhat verify --network opn_testnet 0xContractAddress
-```
-
-**Option B — Manual Verify di OPNScan:**
-1. Buka https://testnet.iopn.tech
-2. Search contract address kamu
-3. Klik tab "Contract" → "Verify & Publish"
-4. Pilih:
-   - Compiler Type: `Solidity (Single file)`
-   - Compiler Version: `v0.8.20+commit.a1b79de6`
-   - Open Source License: `MIT`
-5. Paste isi file `contracts/DeFiSentinelVault.sol`
-6. Klik "Verify & Publish"
-
-**Option C — Flatten & Verify:**
-```bash
-# Flatten contract jadi single file
-npx hardhat flatten > flattened.sol
-
-# Lalu paste ke OPNScan manual verify
-```
-
-### Step 8: Fund Vault (untuk Rewards)
-
-```bash
+# Fund vault with rewards
 npx hardhat run scripts/fund.js --network opn_testnet
 ```
 
-Ini mengirim 1 IOPN ke vault sebagai reward pool.
+### Add OPN Chain to Wallet
 
-### Step 9: Test Interaksi
-
-```bash
-npx hardhat run scripts/interact.js --network opn_testnet
-```
-
-Ini akan:
-- Stake 0.1 IOPN
-- Cek pending rewards
-- Print explorer link
-
-### Step 10: Deploy Frontend (GRATIS)
-
-**Option A — GitHub Pages (paling gampang):**
-
-```bash
-# 1. Update CONTRACT_ADDRESS di frontend/index.html
-#    Ganti "0xYOUR_CONTRACT_ADDRESS_HERE" dengan address asli
-
-# 2. Push ke GitHub
-cd /root/.hermes/projects/iopn-defi-sentinel
-git init
-git add .
-git commit -m "DeFi Sentinel Vault - OPN Chain"
-git remote add origin https://github.com/alawymuhsin/defi-sentinel-vault.git
-git push -u origin main
-
-# 3. Enable GitHub Pages:
-#    - Buka repo → Settings → Pages
-#    - Source: Deploy from branch
-#    - Branch: main, folder: /frontend
-#    - Save
-
-# 4. URL: https://alawymuhsin.github.io/defi-sentinel-vault
-```
-
-**Option B — Vercel (juga gratis):**
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-cd frontend
-vercel
-
-# Ikuti prompts, URL: https://defi-sentinel-vault.vercel.app
-```
-
-### Step 11: Submit ke IOPN Builders
-
-1. Buka https://builders.iopn.tech/dashboard/submit
-2. Connect wallet (yang sama dengan deployer)
-3. Isi form:
-   - Project Name: `DeFi Sentinel Vault`
-   - Description: `Security-first staking vault on OPN Chain. Multi-chain DeFi security & analytics toolkit with automated vulnerability scanning, rug pull detection, and real-time monitoring.`
-   - Demo URL: `https://alawymuhsin.github.io/defi-sentinel-vault` (atau Vercel URL)
-   - GitHub: `https://github.com/alawymuhsin/defi-sentinel-vault`
-   - Contract: `0xContractAddress` (otomatis terdeteksi dari chain)
-   - Season: `Season 1 · DeFi & Open Finance`
-   - Theme: `DeFi & Open Finance`
+| Field | Value |
+|-------|-------|
+| Network Name | OPN Chain Testnet |
+| RPC URL | https://testnet-rpc.iopn.tech |
+| Chain ID | 984 |
+| Currency Symbol | IOPN |
+| Explorer | https://testnet.iopn.tech |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-iopn-defi-sentinel/
+defi-sentinel-vault/
 ├── contracts/
-│   └── DeFiSentinelVault.sol    # Smart contract
+│   └── DeFiSentinelVault.sol    # Solidity smart contract
 ├── scripts/
-│   ├── deploy.js                # Deploy script
-│   ├── fund.js                  # Fund vault script
-│   └── interact.js              # Test interaction script
+│   ├── deploy.js                # Deployment script
+│   ├── fund.js                  # Fund reward pool
+│   └── interact.js              # Test interactions
 ├── frontend/
 │   └── index.html               # Web frontend (single file)
-├── hardhat.config.js            # Hardhat config
-├── package.json                 # Dependencies
+├── docs/
+│   └── index.html               # GitHub Pages deployment
+├── hardhat.config.js            # Hardhat configuration
+├── package.json
 ├── .env.example                 # Environment template
-└── README.md                    # This file
+└── README.md
 ```
 
 ---
 
-## ⚠️ Troubleshooting
+## Smart Contract
 
-### "Insufficient funds"
-Cek balance wallet kamu. Butuh minimal 0.5 IOPN.
+**DeFiSentinelVault.sol** — Solidity 0.8.20
 
-### "Cannot connect to RPC"
+### Core Functions
+
+| Function | Description |
+|----------|-------------|
+| `stake()` | Stake IOPN tokens (payable) |
+| `withdraw(amount)` | Withdraw staked tokens |
+| `claimReward()` | Claim accumulated rewards |
+| `pendingReward(address)` | View pending rewards |
+| `totalStaked()` | Total tokens staked in vault |
+| `getStakerCount()` | Number of active stakers |
+| `getContractBalance()` | Vault IOPN balance |
+| `fundRewards()` | Owner funds reward pool |
+
+### Events
+
+- `Staked(address indexed user, uint256 amount)`
+- `Withdrawn(address indexed user, uint256 amount)`
+- `RewardClaimed(address indexed user, uint256 reward)`
+- `RewardRateUpdated(uint256 newRate)`
+
+---
+
+## Roadmap
+
+**Phase 1 — Launch (May 2026)**
+- Deploy staking vault on OPN Chain Testnet
+- Web frontend with wallet integration
+- Contract verified on OPNScan
+
+**Phase 2 — Expansion (Q3 2026)**
+- Multi-token staking support (ERC-20)
+- Tiered pools with flexible lock periods (7d, 30d, 90d)
+- Analytics dashboard: TVL history, reward projections, APY calculator
+
+**Phase 3 — Security Suite (Q4 2026)**
+- Integrate DeFi Sentinel scanner: token safety, honeypot detection, rug pull alerts
+- On-chain audit reports from the vault UI
+- MEV protection for staking transactions
+
+**Phase 4 — Ecosystem (Q1 2027)**
+- Governance module for staker voting
+- Cross-chain bridge integration (Ethereum, Base, Arbitrum → OPN Chain)
+- SDK for OPN Chain builders to integrate DeFi Sentinel security checks
+
+---
+
+## Troubleshooting
+
+**"Insufficient funds"**
+Check wallet balance. Minimum 0.5 IOPN required for deploy + gas.
+
+**"Cannot connect to RPC"**
 ```bash
-# Test RPC connection
-curl -X POST https://testnet-rpc.iopn.tech   -H "Content-Type: application/json"   -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
+curl -X POST https://testnet-rpc.iopn.tech \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
 ```
 
-### Verify gagal
-Pastikan compiler version match: `v0.8.20+commit.a1b79de6`
+**Verify failed**
+Ensure compiler version matches: `v0.8.20+commit.a1b79de6`
 
-### Frontend tidak bisa connect wallet
-- Pastikan MetaMask sudah tambah OPN Chain (Chain ID 984)
-- Update `CONTRACT_ADDRESS` di `index.html`
+**Frontend won't connect wallet**
+- Add OPN Chain to MetaMask (Chain ID 984)
+- Update `CONTRACT_ADDRESS` in `index.html`
 
 ---
 
-## 🔗 Links
+## Links
 
-- [IOPN Builders](https://builders.iopn.tech)
+- [IOPN Builders Programme](https://builders.iopn.tech)
 - [OPN Chain Explorer](https://testnet.iopn.tech)
-- [ChainList](https://chainlist.org/chain/984)
-- [DeFi Sentinel GitHub](https://github.com/alawymuhsin/defi-sentinel)
+- [ChainList — OPN Chain](https://chainlist.org/chain/984)
+- [DeFi Sentinel Toolkit](https://github.com/alawymuhsin/defi-sentinel)
 
 ---
 
-Built with 🛡️ DeFi Sentinel
+Built with 🛡️ [DeFi Sentinel](https://github.com/alawymuhsin/defi-sentinel)
