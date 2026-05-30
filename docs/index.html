@@ -1,439 +1,438 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en">
-     3|<head>
-     4|  <meta charset="UTF-8">
-     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|  <title>DeFi Sentinel Vault — OPN Chain</title>
-     7|  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
-     8|  <style>
-     9|    :root {
-    10|      --bg: #0a0a0f;
-    11|      --surface: #12121a;
-    12|      --surface2: #1a1a25;
-    13|      --border: #2a2a3a;
-    14|      --text: #e0e0e8;
-    15|      --muted: #8888aa;
-    16|      --accent: #6c5ce7;
-    17|      --accent2: #a855f7;
-    18|      --success: #00d26a;
-    19|      --danger: #ff4757;
-    20|      --gold: #ffd700;
-    21|    }
-    22|    * { margin: 0; padding: 0; box-sizing: border-box; }
-    23|    body {
-    24|      font-family: 'Inter', -apple-system, sans-serif;
-    25|      background: var(--bg);
-    26|      color: var(--text);
-    27|      min-height: 100vh;
-    28|    }
-    29|    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
-    30|
-    31|    /* Header */
-    32|    header {
-    33|      display: flex; align-items: center; justify-content: space-between;
-    34|      padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
-    35|    }
-    36|    .logo { display: flex; align-items: center; gap: 0.75rem; }
-    37|    .logo-icon {
-    38|      width: 36px; height: 36px; background: var(--accent);
-    39|      border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    40|      font-size: 1.2rem; font-weight: 700;
-    41|    }
-    42|    .logo-text { font-size: 1.1rem; font-weight: 600; }
-    43|    .logo-sub { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-    44|    .chain-badge {
-    45|      background: var(--surface2); border: 1px solid var(--border);
-    46|      padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem;
-    47|      display: flex; align-items: center; gap: 0.4rem;
-    48|    }
-    49|    .chain-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
-    50|
-    51|    /* Hero */
-    52|    .hero {
-    53|      text-align: center; padding: 3rem 0 2rem;
-    54|    }
-    55|    .hero h1 {
-    56|      font-size: 2.2rem; font-weight: 700;
-    57|      background: linear-gradient(135deg, var(--accent), var(--accent2));
-    58|      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    59|      margin-bottom: 0.75rem;
-    60|    }
-    61|    .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.6; }
-    62|
-    63|    /* Stats */
-    64|    .stats {
-    65|      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
-    66|      margin: 2rem 0;
-    67|    }
-    68|    .stat-card {
-    69|      background: var(--surface); border: 1px solid var(--border);
-    70|      padding: 1.25rem; border-radius: 12px; text-align: center;
-    71|    }
-    72|    .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--accent2); }
-    73|    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    74|
-    75|    /* Cards */
-    76|    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
-    77|    .card {
-    78|      background: var(--surface); border: 1px solid var(--border);
-    79|      border-radius: 14px; padding: 1.5rem;
-    80|    }
-    81|    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    82|    .card-title .icon { font-size: 1.2rem; }
-    83|
-    84|    /* Form */
-    85|    .input-group { margin-bottom: 1rem; }
-    86|    .input-group label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; }
-    87|    .input-group input {
-    88|      width: 100%; padding: 0.7rem 1rem; background: var(--surface2);
-    89|      border: 1px solid var(--border); border-radius: 8px;
-    90|      color: var(--text); font-size: 0.95rem; outline: none;
-    91|    }
-    92|    .input-group input:focus { border-color: var(--accent); }
-    93|
-    94|    /* Buttons */
-    95|    .btn {
-    96|      width: 100%; padding: 0.8rem; border: none; border-radius: 10px;
-    97|      font-size: 0.95rem; font-weight: 600; cursor: pointer;
-    98|      transition: all 0.2s;
-    99|    }
-   100|    .btn-primary {
-   101|      background: linear-gradient(135deg, var(--accent), var(--accent2));
-   102|      color: white;
-   103|    }
-   104|    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-   105|    .btn-outline {
-   106|      background: transparent; border: 1px solid var(--border);
-   107|      color: var(--text);
-   108|    }
-   109|    .btn-outline:hover { border-color: var(--accent); }
-   110|    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-   111|
-   112|    /* Wallet */
-   113|    .wallet-bar {
-   114|      display: flex; align-items: center; justify-content: space-between;
-   115|      background: var(--surface); border: 1px solid var(--border);
-   116|      padding: 0.75rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem;
-   117|    }
-   118|    .wallet-addr { font-family: monospace; font-size: 0.85rem; color: var(--muted); }
-   119|    .wallet-bal { font-weight: 600; }
-   120|
-   121|    /* Info */
-   122|    .info-row {
-   123|      display: flex; justify-content: space-between; padding: 0.6rem 0;
-   124|      border-bottom: 1px solid var(--border); font-size: 0.85rem;
-   125|    }
-   126|    .info-row:last-child { border-bottom: none; }
-   127|    .info-label { color: var(--muted); }
-   128|    .info-value { font-weight: 500; }
-   129|
-   130|    /* Status */
-   131|    .status-msg {
-   132|      margin-top: 0.75rem; padding: 0.6rem 1rem; border-radius: 8px;
-   133|      font-size: 0.8rem; display: none;
-   134|    }
-   135|    .status-ok { background: rgba(0,210,106,0.1); color: var(--success); display: block; }
-   136|    .status-err { background: rgba(255,71,87,0.1); color: var(--danger); display: block; }
-   137|
-   138|    /* Footer */
-   139|    footer {
-   140|      text-align: center; padding: 2rem 0; color: var(--muted);
-   141|      font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
-   142|    }
-   143|    footer a { color: var(--accent); text-decoration: none; }
-   144|
-   145|    /* Responsive */
-   146|    @media (max-width: 768px) {
-   147|      .stats { grid-template-columns: repeat(2, 1fr); }
-   148|      .grid-2 { grid-template-columns: 1fr; }
-   149|      .hero h1 { font-size: 1.6rem; }
-   150|    }
-   151|  </style>
-   152|</head>
-   153|<body>
-   154|
-   155|<header>
-   156|  <div class="logo">
-   157|    <div class="logo-icon">🛡️</div>
-   158|    <div>
-   159|      <div class="logo-text">DeFi Sentinel Vault</div>
-   160|      <div class="logo-sub">Security-First Staking</div>
-   161|    </div>
-   162|  </div>
-   163|  <div class="chain-badge">
-   164|    <span class="chain-dot"></span>
-   165|    OPN Chain Testnet · Chain 984
-   166|  </div>
-   167|</header>
-   168|
-   169|<div class="container">
-   170|  <!-- Hero -->
-   171|  <div class="hero">
-   172|    <h1>Stake IOPN, Earn Rewards</h1>
-   173|    <p>A secure, non-custodial staking vault on OPN Chain. Built by DeFi Sentinel — multi-chain DeFi security &amp; analytics toolkit.</p>
-   174|  </div>
-   175|
-   176|  <!-- Wallet Connection -->
-   177|  <div id="walletSection">
-   178|    <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()" style="max-width:300px;margin:0 auto;display:block;">
-   179|      🔗 Connect Wallet
-   180|    </button>
-   181|  </div>
-   182|  <div id="walletBar" class="wallet-bar" style="display:none;">
-   183|    <div>
-   184|      <div style="font-size:0.7rem;color:var(--muted);">Connected</div>
-   185|      <div class="wallet-addr" id="walletAddr"></div>
-   186|    </div>
-   187|    <div class="wallet-bal" id="walletBal">— IOPN</div>
-   188|  </div>
-   189|
-   190|  <!-- Stats -->
-   191|  <div class="stats">
-   192|    <div class="stat-card">
-   193|      <div class="stat-value" id="totalStaked">—</div>
-   194|      <div class="stat-label">Total Staked</div>
-   195|    </div>
-   196|    <div class="stat-card">
-   197|      <div class="stat-value" id="rewardRate">5%</div>
-   198|      <div class="stat-label">APR</div>
-   199|    </div>
-   200|    <div class="stat-card">
-   201|      <div class="stat-value" id="stakerCount">—</div>
-   202|      <div class="stat-label">Stakers</div>
-   203|    </div>
-   204|    <div class="stat-card">
-   205|      <div class="stat-value" id="vaultBal">—</div>
-   206|      <div class="stat-label">Vault Balance</div>
-   207|    </div>
-   208|  </div>
-   209|
-   210|  <!-- Main Grid -->
-   211|  <div class="grid-2">
-   212|    <!-- Stake Card -->
-   213|    <div class="card">
-   214|      <div class="card-title"><span class="icon">🥩</span> Stake</div>
-   215|      <div class="input-group">
-   216|        <label>Amount (IOPN)</label>
-   217|        <input type="number" id="stakeAmount" placeholder="0.1" step="0.01" min="0.01">
-   218|      </div>
-   219|      <button class="btn btn-primary" onclick="doStake()">Stake IOPN</button>
-   220|      <div class="status-msg" id="stakeStatus"></div>
-   221|    </div>
-   222|
-   223|    <!-- Withdraw Card -->
-   224|    <div class="card">
-   225|      <div class="card-title"><span class="icon">💸</span> Withdraw</div>
-   226|      <div class="input-group">
-   227|        <label>Amount (IOPN)</label>
-   228|        <input type="number" id="withdrawAmount" placeholder="0.1" step="0.01" min="0.01">
-   229|      </div>
-   230|      <button class="btn btn-outline" onclick="doWithdraw()">Withdraw</button>
-   231|      <div class="status-msg" id="withdrawStatus"></div>
-   232|    </div>
-   233|  </div>
-   234|
-   235|  <!-- Rewards -->
-   236|  <div class="card" style="margin:1.5rem 0;">
-   237|    <div class="card-title"><span class="icon">💎</span> Your Position</div>
-   238|    <div class="info-row">
-   239|      <span class="info-label">Your Stake</span>
-   240|      <span class="info-value" id="yourStake">— IOPN</span>
-   241|    </div>
-   242|    <div class="info-row">
-   243|      <span class="info-label">Pending Rewards</span>
-   244|      <span class="info-value" id="yourRewards">— IOPN</span>
-   245|    </div>
-   246|    <div class="info-row">
-   247|      <span class="info-label">Total Rewards Earned</span>
-   248|      <span class="info-value" id="totalEarned">— IOPN</span>
-   249|    </div>
-   250|    <button class="btn btn-primary" style="margin-top:1rem;" onclick="doClaim()">💎 Claim Rewards</button>
-   251|    <div class="status-msg" id="claimStatus"></div>
-   252|  </div>
-   253|
-   254|  <!-- Contract Info -->
-   255|  <div class="card" style="margin:1.5rem 0;">
-   256|    <div class="card-title"><span class="icon">📋</span> Contract Info</div>
-   257|    <div class="info-row">
-   258|      <span class="info-label">Contract Address</span>
-   259|      <span class="info-value" id="contractAddr" style="font-family:monospace;font-size:0.8rem;">—</span>
-   260|    </div>
-   261|    <div class="info-row">
-   262|      <span class="info-label">Network</span>
-   263|      <span class="info-value">OPN Chain Testnet (984)</span>
-   264|    </div>
-   265|    <div class="info-row">
-   266|      <span class="info-label">Currency</span>
-   267|      <span class="info-value">IOPN</span>
-   268|    </div>
-   269|    <div class="info-row">
-   270|      <span class="info-label">Explorer</span>
-   271|      <span class="info-value"><a href="https://testnet.iopn.tech" target="_blank" style="color:var(--accent);">testnet.iopn.tech</a></span>
-   272|    </div>
-   273|  </div>
-   274|</div>
-   275|
-   276|<footer>
-   277|  Built with 🛡️ <a href="https://github.com/alawymuhsin/defi-sentinel">DeFi Sentinel</a> ·
-   278|  Submitted to <a href="https://builders.iopn.tech">IOPN Builders Programme</a> Season 1
-   279|</footer>
-   280|
-   281|<script>
-   282|// ============ CONFIG ============
-   283|// UPDATE THIS after deploying the contract!
-   284|const CONTRACT_ADDRESS = "0x74D35B307c0652762669b351AD208a3538239A9e";
-   285|
-   286|const OPN_CHAIN = {
-   287|  chainId: "0x3D8",  // 984 in hex
-   288|  chainName: "OPN Chain Testnet",
-   289|  nativeCurrency: { name: "IOPN", symbol: "IOPN", decimals: 18 },
-   290|  rpcUrls: ["https://testnet-rpc.iopn.tech"],
-   291|  blockExplorerUrls: ["https://testnet.iopn.tech"],
-   292|};
-   293|
-   294|const ABI = [
-   295|  "function stake() payable",
-   296|  "function withdraw(uint256 amount)",
-   297|  "function claimReward()",
-   298|  "function pendingReward(address) view returns (uint256)",
-   299|  "function totalStaked() view returns (uint256)",
-   300|  "function rewardRate() view returns (uint256)",
-   301|  "function getStakerCount() view returns (uint256)",
-   302|  "function getContractBalance() view returns (uint256)",
-   303|  "function users(address) view returns (uint256 staked, uint256 rewardDebt, uint256 lastStakeTime, uint256 totalRewards)",
-   304|];
-   305|
-   306|let provider, signer, contract;
-   307|
-   308|// ============ WALLET ============
-   309|async function connectWallet() {
-   310|  if (!window.ethereum) {
-   311|    alert("Please install MetaMask or Rabby Wallet!");
-   312|    return;
-   313|  }
-   314|  try {
-   315|    await window.ethereum.request({ method: "eth_requestAccounts" });
-   316|
-   317|    // Switch to OPN Chain
-   318|    try {
-   319|      await window.ethereum.request({
-   320|        method: "wallet_switchEthereumChain",
-   321|        params: [{ chainId: OPN_CHAIN.chainId }],
-   322|      });
-   323|    } catch (e) {
-   324|      if (e.code === 4902) {
-   325|        await window.ethereum.request({
-   326|          method: "wallet_addEthereumChain",
-   327|          params: [OPN_CHAIN],
-   328|        });
-   329|      }
-   330|    }
-   331|
-   332|    provider = new ethers.providers.Web3Provider(window.ethereum);
-   333|    signer = provider.getSigner();
-   334|    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-   335|
-   336|    const addr = await signer.getAddress();
-   337|    const bal = await provider.getBalance(addr);
-   338|
-   339|    document.getElementById("connectBtn").style.display = "none";
-   340|    document.getElementById("walletBar").style.display = "flex";
-   341|    document.getElementById("walletAddr").textContent = addr.slice(0, 6) + "..." + addr.slice(-4);
-   342|    document.getElementById("walletBal").textContent = parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + " IOPN";
-   343|    document.getElementById("contractAddr").textContent = CONTRACT_ADDRESS;
-   344|
-   345|    await refreshStats();
-   346|    setInterval(refreshStats, 15000);
-   347|
-   348|  } catch (err) {
-   349|    console.error(err);
-   350|    alert("Connection failed: " + err.message);
-   351|  }
-   352|}
-   353|
-   354|// ============ STATS ============
-   355|async function refreshStats() {
-   356|  if (!contract) return;
-   357|  try {
-   358|    const [totalStaked, rate, stakers, vaultBal] = await Promise.all([
-   359|      contract.totalStaked(),
-   360|      contract.rewardRate(),
-   361|      contract.getStakerCount(),
-   362|      contract.getContractBalance(),
-   363|    ]);
-   364|
-   365|    document.getElementById("totalStaked").textContent = parseFloat(ethers.utils.formatEther(totalStaked)).toFixed(2);
-   366|    document.getElementById("rewardRate").textContent = (rate.toNumber() / 100).toFixed(1) + "%";
-   367|    document.getElementById("stakerCount").textContent = stakers.toString();
-   368|    document.getElementById("vaultBal").textContent = parseFloat(ethers.utils.formatEther(vaultBal)).toFixed(2);
-   369|
-   370|    // User info
-   371|    const addr = await signer.getAddress();
-   372|    const [userInfo, pending] = await Promise.all([
-   373|      contract.users(addr),
-   374|      contract.pendingReward(addr),
-   375|    ]);
-   376|
-   377|    document.getElementById("yourStake").textContent = parseFloat(ethers.utils.formatEther(userInfo.staked)).toFixed(4) + " IOPN";
-   378|    document.getElementById("yourRewards").textContent = parseFloat(ethers.utils.formatEther(pending)).toFixed(6) + " IOPN";
-   379|    document.getElementById("totalEarned").textContent = parseFloat(ethers.utils.formatEther(userInfo.totalRewards)).toFixed(6) + " IOPN";
-   380|  } catch (e) {
-   381|    console.error("Refresh error:", e);
-   382|  }
-   383|}
-   384|
-   385|// ============ ACTIONS ============
-   386|async function doStake() {
-   387|  const amount = document.getElementById("stakeAmount").value;
-   388|  if (!amount || parseFloat(amount) < 0.01) return showStatus("stakeStatus", "Min stake: 0.01 IOPN", true);
-   389|
-   390|  try {
-   391|    showStatus("stakeStatus", "Sending transaction...");
-   392|    const tx = await contract.stake({ value: ethers.utils.parseEther(amount) });
-   393|    showStatus("stakeStatus", "TX sent: " + tx.hash);
-   394|    await tx.wait();
-   395|    showStatus("stakeStatus", "✅ Staked " + amount + " IOPN!");
-   396|    await refreshStats();
-   397|  } catch (e) {
-   398|    showStatus("stakeStatus", "Error: " + (e.reason || e.message), true);
-   399|  }
-   400|}
-   401|
-   402|async function doWithdraw() {
-   403|  const amount = document.getElementById("withdrawAmount").value;
-   404|  if (!amount) return;
-   405|
-   406|  try {
-   407|    showStatus("withdrawStatus", "Sending transaction...");
-   408|    const tx = await contract.withdraw(ethers.utils.parseEther(amount));
-   409|    showStatus("withdrawStatus", "TX sent: " + tx.hash);
-   410|    await tx.wait();
-   411|    showStatus("withdrawStatus", "✅ Withdrew " + amount + " IOPN!");
-   412|    await refreshStats();
-   413|  } catch (e) {
-   414|    showStatus("withdrawStatus", "Error: " + (e.reason || e.message), true);
-   415|  }
-   416|}
-   417|
-   418|async function doClaim() {
-   419|  try {
-   420|    showStatus("claimStatus", "Claiming rewards...");
-   421|    const tx = await contract.claimReward();
-   422|    showStatus("claimStatus", "TX sent: " + tx.hash);
-   423|    await tx.wait();
-   424|    showStatus("claimStatus", "✅ Rewards claimed!");
-   425|    await refreshStats();
-   426|  } catch (e) {
-   427|    showStatus("claimStatus", "Error: " + (e.reason || e.message), true);
-   428|  }
-   429|}
-   430|
-   431|function showStatus(id, msg, isErr = false) {
-   432|  const el = document.getElementById(id);
-   433|  el.textContent = msg;
-   434|  el.className = "status-msg " + (isErr ? "status-err" : "status-ok");
-   435|}
-   436|</script>
-   437|</body>
-   438|</html>
-   439|
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeFi Sentinel Vault — OPN Chain</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a25;
+      --border: #2a2a3a;
+      --text: #e0e0e8;
+      --muted: #8888aa;
+      --accent: #6c5ce7;
+      --accent2: #a855f7;
+      --success: #00d26a;
+      --danger: #ff4757;
+      --gold: #ffd700;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Header */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon {
+      width: 36px; height: 36px; background: var(--accent);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700;
+    }
+    .logo-text { font-size: 1.1rem; font-weight: 600; }
+    .logo-sub { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .chain-badge {
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .chain-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+
+    /* Hero */
+    .hero {
+      text-align: center; padding: 3rem 0 2rem;
+    }
+    .hero h1 {
+      font-size: 2.2rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+    }
+    .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+    /* Stats */
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+      margin: 2rem 0;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 1.25rem; border-radius: 12px; text-align: center;
+    }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--accent2); }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+    }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .card-title .icon { font-size: 1.2rem; }
+
+    /* Form */
+    .input-group { margin-bottom: 1rem; }
+    .input-group label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .input-group input {
+      width: 100%; padding: 0.7rem 1rem; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-size: 0.95rem; outline: none;
+    }
+    .input-group input:focus { border-color: var(--accent); }
+
+    /* Buttons */
+    .btn {
+      width: 100%; padding: 0.8rem; border: none; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--accent); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Wallet */
+    .wallet-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.75rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem;
+    }
+    .wallet-addr { font-family: monospace; font-size: 0.85rem; color: var(--muted); }
+    .wallet-bal { font-weight: 600; }
+
+    /* Info */
+    .info-row {
+      display: flex; justify-content: space-between; padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border); font-size: 0.85rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--muted); }
+    .info-value { font-weight: 500; }
+
+    /* Status */
+    .status-msg {
+      margin-top: 0.75rem; padding: 0.6rem 1rem; border-radius: 8px;
+      font-size: 0.8rem; display: none;
+    }
+    .status-ok { background: rgba(0,210,106,0.1); color: var(--success); display: block; }
+    .status-err { background: rgba(255,71,87,0.1); color: var(--danger); display: block; }
+
+    /* Footer */
+    footer {
+      text-align: center; padding: 2rem 0; color: var(--muted);
+      font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛡️</div>
+    <div>
+      <div class="logo-text">DeFi Sentinel Vault</div>
+      <div class="logo-sub">Security-First Staking</div>
+    </div>
+  </div>
+  <div class="chain-badge">
+    <span class="chain-dot"></span>
+    OPN Chain Testnet · Chain 984
+  </div>
+</header>
+
+<div class="container">
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Stake IOPN, Earn Rewards</h1>
+    <p>A secure, non-custodial staking vault on OPN Chain. Built by DeFi Sentinel — multi-chain DeFi security &amp; analytics toolkit.</p>
+  </div>
+
+  <!-- Wallet Connection -->
+  <div id="walletSection">
+    <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()" style="max-width:300px;margin:0 auto;display:block;">
+      🔗 Connect Wallet
+    </button>
+  </div>
+  <div id="walletBar" class="wallet-bar" style="display:none;">
+    <div>
+      <div style="font-size:0.7rem;color:var(--muted);">Connected</div>
+      <div class="wallet-addr" id="walletAddr"></div>
+    </div>
+    <div class="wallet-bal" id="walletBal">— IOPN</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value" id="totalStaked">—</div>
+      <div class="stat-label">Total Staked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="rewardRate">5%</div>
+      <div class="stat-label">APR</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stakerCount">—</div>
+      <div class="stat-label">Stakers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="vaultBal">—</div>
+      <div class="stat-label">Vault Balance</div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="grid-2">
+    <!-- Stake Card -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🥩</span> Stake</div>
+      <div class="input-group">
+        <label>Amount (IOPN)</label>
+        <input type="number" id="stakeAmount" placeholder="0.1" step="0.01" min="0.01">
+      </div>
+      <button class="btn btn-primary" onclick="doStake()">Stake IOPN</button>
+      <div class="status-msg" id="stakeStatus"></div>
+    </div>
+
+    <!-- Withdraw Card -->
+    <div class="card">
+      <div class="card-title"><span class="icon">💸</span> Withdraw</div>
+      <div class="input-group">
+        <label>Amount (IOPN)</label>
+        <input type="number" id="withdrawAmount" placeholder="0.1" step="0.01" min="0.01">
+      </div>
+      <button class="btn btn-outline" onclick="doWithdraw()">Withdraw</button>
+      <div class="status-msg" id="withdrawStatus"></div>
+    </div>
+  </div>
+
+  <!-- Rewards -->
+  <div class="card" style="margin:1.5rem 0;">
+    <div class="card-title"><span class="icon">💎</span> Your Position</div>
+    <div class="info-row">
+      <span class="info-label">Your Stake</span>
+      <span class="info-value" id="yourStake">— IOPN</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Pending Rewards</span>
+      <span class="info-value" id="yourRewards">— IOPN</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Total Rewards Earned</span>
+      <span class="info-value" id="totalEarned">— IOPN</span>
+    </div>
+    <button class="btn btn-primary" style="margin-top:1rem;" onclick="doClaim()">💎 Claim Rewards</button>
+    <div class="status-msg" id="claimStatus"></div>
+  </div>
+
+  <!-- Contract Info -->
+  <div class="card" style="margin:1.5rem 0;">
+    <div class="card-title"><span class="icon">📋</span> Contract Info</div>
+    <div class="info-row">
+      <span class="info-label">Contract Address</span>
+      <span class="info-value" id="contractAddr" style="font-family:monospace;font-size:0.8rem;">—</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Network</span>
+      <span class="info-value">OPN Chain Testnet (984)</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Currency</span>
+      <span class="info-value">IOPN</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Explorer</span>
+      <span class="info-value"><a href="https://testnet.iopn.tech" target="_blank" style="color:var(--accent);">testnet.iopn.tech</a></span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Built with 🛡️ <a href="https://github.com/alawymuhsin/defi-sentinel">DeFi Sentinel</a> ·
+  Submitted to <a href="https://builders.iopn.tech">IOPN Builders Programme</a> Season 1
+</footer>
+
+<script>
+// ============ CONFIG ============
+// UPDATE THIS after deploying the contract!
+const CONTRACT_ADDRESS = "0x74D35B307c0652762669b351AD208a3538239A9e";
+
+const OPN_CHAIN = {
+  chainId: "0x3D8",  // 984 in hex
+  chainName: "OPN Chain Testnet",
+  nativeCurrency: { name: "IOPN", symbol: "IOPN", decimals: 18 },
+  rpcUrls: ["https://testnet-rpc.iopn.tech"],
+  blockExplorerUrls: ["https://testnet.iopn.tech"],
+};
+
+const ABI = [
+  "function stake() payable",
+  "function withdraw(uint256 amount)",
+  "function claimReward()",
+  "function pendingReward(address) view returns (uint256)",
+  "function totalStaked() view returns (uint256)",
+  "function rewardRate() view returns (uint256)",
+  "function getStakerCount() view returns (uint256)",
+  "function getContractBalance() view returns (uint256)",
+  "function users(address) view returns (uint256 staked, uint256 rewardDebt, uint256 lastStakeTime, uint256 totalRewards)",
+];
+
+let provider, signer, contract;
+
+// ============ WALLET ============
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("Please install MetaMask or Rabby Wallet!");
+    return;
+  }
+  try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    // Switch to OPN Chain
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: OPN_CHAIN.chainId }],
+      });
+    } catch (e) {
+      if (e.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [OPN_CHAIN],
+        });
+      }
+    }
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+    const addr = await signer.getAddress();
+    const bal = await provider.getBalance(addr);
+
+    document.getElementById("connectBtn").style.display = "none";
+    document.getElementById("walletBar").style.display = "flex";
+    document.getElementById("walletAddr").textContent = addr.slice(0, 6) + "..." + addr.slice(-4);
+    document.getElementById("walletBal").textContent = parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + " IOPN";
+    document.getElementById("contractAddr").textContent = CONTRACT_ADDRESS;
+
+    await refreshStats();
+    setInterval(refreshStats, 15000);
+
+  } catch (err) {
+    console.error(err);
+    alert("Connection failed: " + err.message);
+  }
+}
+
+// ============ STATS ============
+async function refreshStats() {
+  if (!contract) return;
+  try {
+    const [totalStaked, rate, stakers, vaultBal] = await Promise.all([
+      contract.totalStaked(),
+      contract.rewardRate(),
+      contract.getStakerCount(),
+      contract.getContractBalance(),
+    ]);
+
+    document.getElementById("totalStaked").textContent = parseFloat(ethers.utils.formatEther(totalStaked)).toFixed(2);
+    document.getElementById("rewardRate").textContent = (rate.toNumber() / 100).toFixed(1) + "%";
+    document.getElementById("stakerCount").textContent = stakers.toString();
+    document.getElementById("vaultBal").textContent = parseFloat(ethers.utils.formatEther(vaultBal)).toFixed(2);
+
+    // User info
+    const addr = await signer.getAddress();
+    const [userInfo, pending] = await Promise.all([
+      contract.users(addr),
+      contract.pendingReward(addr),
+    ]);
+
+    document.getElementById("yourStake").textContent = parseFloat(ethers.utils.formatEther(userInfo.staked)).toFixed(4) + " IOPN";
+    document.getElementById("yourRewards").textContent = parseFloat(ethers.utils.formatEther(pending)).toFixed(6) + " IOPN";
+    document.getElementById("totalEarned").textContent = parseFloat(ethers.utils.formatEther(userInfo.totalRewards)).toFixed(6) + " IOPN";
+  } catch (e) {
+    console.error("Refresh error:", e);
+  }
+}
+
+// ============ ACTIONS ============
+async function doStake() {
+  const amount = document.getElementById("stakeAmount").value;
+  if (!amount || parseFloat(amount) < 0.01) return showStatus("stakeStatus", "Min stake: 0.01 IOPN", true);
+
+  try {
+    showStatus("stakeStatus", "Sending transaction...");
+    const tx = await contract.stake({ value: ethers.utils.parseEther(amount) });
+    showStatus("stakeStatus", "TX sent: " + tx.hash);
+    await tx.wait();
+    showStatus("stakeStatus", "✅ Staked " + amount + " IOPN!");
+    await refreshStats();
+  } catch (e) {
+    showStatus("stakeStatus", "Error: " + (e.reason || e.message), true);
+  }
+}
+
+async function doWithdraw() {
+  const amount = document.getElementById("withdrawAmount").value;
+  if (!amount) return;
+
+  try {
+    showStatus("withdrawStatus", "Sending transaction...");
+    const tx = await contract.withdraw(ethers.utils.parseEther(amount));
+    showStatus("withdrawStatus", "TX sent: " + tx.hash);
+    await tx.wait();
+    showStatus("withdrawStatus", "✅ Withdrew " + amount + " IOPN!");
+    await refreshStats();
+  } catch (e) {
+    showStatus("withdrawStatus", "Error: " + (e.reason || e.message), true);
+  }
+}
+
+async function doClaim() {
+  try {
+    showStatus("claimStatus", "Claiming rewards...");
+    const tx = await contract.claimReward();
+    showStatus("claimStatus", "TX sent: " + tx.hash);
+    await tx.wait();
+    showStatus("claimStatus", "✅ Rewards claimed!");
+    await refreshStats();
+  } catch (e) {
+    showStatus("claimStatus", "Error: " + (e.reason || e.message), true);
+  }
+}
+
+function showStatus(id, msg, isErr = false) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = "status-msg " + (isErr ? "status-err" : "status-ok");
+}
+</script>
+</body>
+</html>
