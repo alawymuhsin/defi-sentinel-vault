@@ -1,5 +1,5 @@
-import hre from "hardhat";
-import fs from "fs";
+const hre = require("hardhat");
+const fs = require("fs");
 
 async function main() {
   console.log("🚀 Deploying DeFiSentinelVault to OPN Chain Testnet...");
@@ -22,11 +22,6 @@ async function main() {
 
   const address = await vault.getAddress();
   console.log("\n✅ DeFiSentinelVault deployed to:", address);
-  console.log("\n📋 Next steps:");
-  console.log("1. Fund the vault with IOPN for rewards:");
-  console.log(`   npx hardhat run scripts/fund.js --network opn_testnet`);
-  console.log("2. Verify on explorer:");
-  console.log(`   npx hardhat verify --network opn_testnet ${address}`);
   console.log("\n🔗 Explorer:", `https://testnet.iopn.tech/address/${address}`);
 
   const deployment = {

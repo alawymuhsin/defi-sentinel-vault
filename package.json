@@ -1,7 +1,6 @@
 {
   "name": "iopn-defi-sentinel",
   "version": "1.0.0",
-  "type": "module",
   "description": "DeFi Sentinel Vault - OPN Chain Testnet",
   "scripts": {
     "compile": "npx hardhat compile",
@@ -10,7 +9,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
-    "@nomicfoundation/hardhat-verify": "^3.0.18",
+    "@nomicfoundation/hardhat-verify": "^2.1.3",
     "ethers": "^6.0.0",
     "hardhat": "^2.22.0"
   },
